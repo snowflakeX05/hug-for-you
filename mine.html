@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ส่งความรักไปให้นะ 🫂💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+            background-color: #fff0f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: #5a4b4b;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 { font-size: 22px; color: #ff6b81; margin-bottom: 10px; }
+        p { font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
+
+        .btn {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+            transition: transform 0.2s;
+            font-family: 'Prompt', sans-serif;
+            margin-top: 10px;
+        }
+
+        .btn:active { transform: scale(0.95); }
+        .hidden { display: none !important; }
+
+        /* --- CSS สำหรับมินิเกม --- */
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background-color: #ffe4e1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 2px dashed #ffb6c1;
+        }
+        .sad-emoji {
+            position: absolute;
+            font-size: 35px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        .sad-emoji:active { transform: scale(0.8); }
+
+        /* --- CSS สำหรับ Loading --- */
+        .progress-container {
+            width: 100%;
+            background-color: #f1f2f6;
+            border-radius: 50px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff9a9e, #ff6a88);
+            border-radius: 50px;
+            transition: width 0.1s linear;
+        }
+        #loading-text { color: #ff6b81; font-weight: 600; }
+
+        /* --- CSS สำหรับ Gacha และผลลัพธ์ --- */
+        .final-image {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #ff9a9e;
+            margin-bottom: 15px;
+        }
+        .gacha-result {
+            background-color: #fff;
+            border: 2px solid #ff9a9e;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 16px;
+            color: #ff6b81;
+            font-weight: 600;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- CSS สำหรับ Audio Player --- */
+        .audio-container {
+            margin-top: 20px;
+            background: #ffe4e1;
+            padding: 10px;
+            border-radius: 15px;
+        }
+        .audio-container p {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ff6b81;
+        }
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ซ่อนไฟล์เพลงพื้นหลัง (Background Music) เล่นวนซ้ำ (loop) -->
+    <audio id="bg-music" loop>
+        <source src="mine.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 1. หน้าต้อนรับ -->
+    <div id="step-intro" class="container">
+        <h1>เหนื่อยมากไหมคนเก่ง 🥺</h1>
+        <p>รู้ว่าวันนี้เจอเรื่องหนักๆมา<br>มาจิ้มทำลายความเครียดทิ้งกันก่อนนะ</p>
+        <button class="btn" onclick="startGame()">เริ่มทำลายความเศร้า 👊</button>
+    </div>
+
+    <!-- 2. มินิเกมทำลายความเศร้า -->
+    <div id="step-game" class="container hidden">
+        <h1>ระบายอารมณ์จิ้มมันทิ้งให้หมดอ้วน 💥</h1>
+        <p>ทำลายความเศร้าให้ครบ <span id="score">0</span> / 10</p>
+        <div id="game-area"></div>
+    </div>
+
+    <!-- 3. โหลดอ้อมกอด -->
+    <div id="step-loading" class="container hidden">
+        <h1>เก่งมาก ความเศร้าหายไปแล้ว ✨</h1>
+        <p id="loading-text">กำลังเปลี่ยนพื้นที่ว่างเป็นความรัก... 0%</p>
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- 4. หน้าส่งกอด & ตู้สุ่มกำลังใจ -->
+    <div id="step-final" class="container hidden">
+        <img src="mine.JPG" alt="Hug" class="final-image">
+        <h1>โอ๋ๆกอดๆนะ 🫂</h1>
+        <p>พี่อยู่ตรงนี้เสมอนะ ยิ้มหน่อยเร็ว!<br>มากดสุ่มรับกำลังใจจากพี่ดีกว่า</p>
+        
+        <button class="btn" onclick="rollGacha()">🎁 กดสุ่มของขวัญ<br>กดได้หลายรอบนะ 🤓</button>
+        <div id="gacha-display" class="gacha-result hidden"></div>
+        
+        <!-- ส่วนเล่นเสียงที่เปิดใช้งานแล้ว -->
+        <div class="audio-container">
+            <p>🎧 ฟังเสียงพี่หน่อยนะ</p>
+            <audio id="voice-msg" controls>
+                <!-- เปลี่ยนชื่อไฟล์ voice.mp3 เป็นชื่อไฟล์เสียงของคุณ -->
+                <source src="mine.m4a" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        // --- การจัดการเสียงเพลง ---
+        const bgMusic = document.getElementById('bg-music');
+        const voiceMsg = document.getElementById('voice-msg');
+
+        // เมื่อกดเล่นเสียงอัด (voice chat) ให้เพลงพื้นหลังหยุด
+        voiceMsg.addEventListener('play', () => {
+            bgMusic.pause();
+        });
+
+        // เมื่อกดหยุดเสียงอัด หรือฟังจบแล้ว ให้เพลงพื้นหลังกลับมาเล่นต่อ
+        voiceMsg.addEventListener('pause', () => {
+            bgMusic.play();
+        });
+        voiceMsg.addEventListener('ended', () => {
+            bgMusic.play();
+        });
+
+        // --- ส่วนที่ 1: ระบบมินิเกม ---
+        let score = 0;
+        const targetScore = 10;
+        let gameInterval;
+
+        function startGame() {
+            // สั่งเล่นเพลงพื้นหลังทันทีที่กดเริ่มเกม
+            bgMusic.play().catch(e => console.log("รอผู้ใช้กดก่อนถึงเล่นเพลงได้"));
+
+            document.getElementById('step-intro').classList.add('hidden');
+            document.getElementById('step-game').classList.remove('hidden');
+            
+            gameInterval = setInterval(spawnSadFace, 600); // ความเร็วในการโผล่หน้าเศร้า
+        }
+
+        function spawnSadFace() {
+            const gameArea = document.getElementById('game-area');
+            const face = document.createElement('div');
+            face.classList.add('sad-emoji');
+            
+            // สุ่มหน้าเศร้า/คำ
+            const sadTypes = ['😭', '🥺', '😞', '😩', '💔', 'เครียด!'];
+            face.innerText = sadTypes[Math.floor(Math.random() * sadTypes.length)];
+            
+            // สุ่มตำแหน่ง
+            const maxX = gameArea.clientWidth - 40;
+            const maxY = gameArea.clientHeight - 40;
+            face.style.left = Math.floor(Math.random() * maxX) + 'px';
+            face.style.top = Math.floor(Math.random() * maxY) + 'px';
+
+            // เมื่อโดนคลิก
+            face.onclick = function() {
+                this.innerText = '💖'; // เปลี่ยนเป็นหัวใจ
+                this.style.transform = 'scale(1.5)';
+                this.onclick = null; // ป้องกันการกดซ้ำ
+                
+                score++;
+                document.getElementById('score').innerText = score;
+                
+                setTimeout(() => this.remove(), 400); // ลบหัวใจออกหลัง 0.4 วินาที
+
+                if (score >= targetScore) {
+                    clearInterval(gameInterval);
+                    setTimeout(startLoading, 500); // จบเกมไปหน้าโหลด
+                }
+            };
+
+            gameArea.appendChild(face);
+
+            // ถ้าไม่กดให้หายไปเอง
+            setTimeout(() => {
+                if(face.parentElement) face.remove();
+            }, 2000);
+        }
+
+        // --- ส่วนที่ 2: ระบบ Loading (แบบมี % วิ่ง) ---
+        function startLoading() {
+            document.getElementById('step-game').classList.add('hidden');
+            document.getElementById('step-loading').classList.remove('hidden');
+
+            const progressBar = document.getElementById('progress-bar');
+            const loadingText = document.getElementById('loading-text');
+            let progress = 0;
+            
+            // ข้อความที่จะเปลี่ยนไปตาม %
+            const msg1 = "กำลังแพ็คความรักใส่กล่อง";
+            const msg2 = "กำลังส่งผ่านบลูทูธไปหา";
+            const msg3 = "เตรียมรับความรักจากพี่นะ 😚";
+
+            const interval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+
+                // อัปเดตข้อความพร้อมตัวเลข % ที่วิ่งอยู่
+                let currentMsg = msg1;
+                if (progress >= 40) currentMsg = msg2;
+                if (progress >= 75) currentMsg = msg3;
+
+                loadingText.innerText = currentMsg + "... " + progress + "%";
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(showFinalScreen, 600);
+                }
+            }, 40); // ปรับความเร็วที่นี่ (ตัวเลขน้อย = วิ่งเร็ว)
+        }
+
+        // --- ส่วนที่ 3: กอดทิพย์ และ ตู้สุ่ม (Gacha) ---
+        function showFinalScreen() {
+            document.getElementById('step-loading').classList.add('hidden');
+            document.getElementById('step-final').classList.remove('hidden');
+        }
+
+        function rollGacha() {
+            const gachaDisplay = document.getElementById('gacha-display');
+            gachaDisplay.classList.remove('hidden');
+            
+            gachaDisplay.innerHTML = "กำลังสุ่ม... ⏳";
+            
+            // ข้อความที่จะสุ่ม (สามารถแก้เพิ่มได้เลย)
+            const messages = [
+                "คูปอง: เลี้ยงชาบู 1 มื้อชุดใหญ่ 🍲 (ทวงได้ตอนเจอกัน)",
+                "อย่าลืมกินของอร่อยๆนะครับ พี่เป็นห่วง 🍕",
+                "รักอ้วนนะ💗",
+                "คูปอง: สั่งให้พี่ทำอะไรก็ได้ 1 อย่าง ✨",
+                "พี่ภูมิใจในตัวอ้วนที่สุดนะ 🥇"
+            ];
+
+            setTimeout(() => {
+                const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+                gachaDisplay.innerHTML = randomMsg;
+                
+                // เอฟเฟกต์เด้งๆ เล็กน้อยตอนสุ่มเสร็จ
+                gachaDisplay.style.transform = 'scale(1.05)';
+                setTimeout(() => gachaDisplay.style.transform = 'scale(1)', 200);
+            }, 800);
+        }
+    </script>
+</body>
+</html>
